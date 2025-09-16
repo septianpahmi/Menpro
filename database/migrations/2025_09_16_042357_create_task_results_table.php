@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('task_results', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('task_id')->constrained()->onDelete('cascade');
+            $table->foreignId('task_item_id')->constrained()->onDelete('cascade');
             $table->foreignId('uploaded_by')->constrained('users')->onDelete('cascade');
             $table->string('file_path')->nullable(); // file bukti
             $table->text('notes')->nullable();       // catatan staff

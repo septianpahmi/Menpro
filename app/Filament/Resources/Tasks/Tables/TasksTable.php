@@ -41,21 +41,6 @@ class TasksTable
                 TextColumn::make('duration')
                     ->label('Duration')
                     ->suffix(' Day'),
-                TextColumn::make('results.file_path')
-                    ->label('Hasil Terakhir')
-                    ->formatStateUsing(fn($state) => $state ? basename($state) : '-')
-                    ->url(fn($state) => $state ? Storage::url($state) : null, true)
-                    ->openUrlInNewTab(),
-
-                TextColumn::make('results.status')
-                    ->label('Status Hasil')
-                    ->formatStateUsing(fn($state) => match ($state) {
-                        'approved'  => '✅ Approved',
-                        'rejected'  => '❌ Rejected',
-                        'submitted' => '⏳ Menunggu Review',
-                        default     => '-',
-                    }),
-
             ])
             ->filters([
                 Filter::make('progress')
@@ -66,58 +51,13 @@ class TasksTable
                 // EditAction::make(),
                 Action::make('Timeline')
                     ->label('Timeline')
+                    ->icon('heroicon-o-bars-3-bottom-left')
                     ->slideOver()
                     ->modalWidth(Width::FiveExtraLarge)
                     ->form([
                         View::make('tasks.timeline')
                             ->viewData(fn($record) => ['record' => $record]),
-                    ]),
-
-                Action::make('uploadResult')
-                    ->label('Upload Hasil')
-                    ->icon('heroicon-o-arrow-up-tray')
-                    ->form([
-                        FileUpload::make('file_path')
-                            ->label('File Hasil')
-                            ->directory('task-results')
-                            ->visibility('public')
-                            ->required(),
-
-                        Textarea::make('notes')
-                            ->label('Catatan')
-                            ->nullable(),
-                    ])
-                    ->action(function (array $data, $record) {
-                        $record->results()->create([
-                            'file_path'   => $data['file_path'],
-                            'notes'       => $data['notes'] ?? null,
-                            'uploaded_by' => Auth::id(),
-                            'status'      => 'submitted',
-                        ]);
-                    })
-                    ->modalHeading('Upload Hasil Pekerjaan')
-                    ->modalSubmitActionLabel('Kirim'),
-                Action::make('reviewResult')
-                    ->label('Review Hasil')
-                    ->icon('heroicon-o-check-circle')
-                    ->visible(fn($record) => $record->results()->exists())
-                    ->form([
-                        Select::make('status')
-                            ->label('Update Status')
-                            ->options([
-                                'approved' => 'Approve',
-                                'rejected' => 'Reject',
-                            ])
-                            ->required(),
-                    ])
-                    ->action(function (array $data, $record) {
-                        $latestResult = $record->results()->latest()->first();
-                        if ($latestResult) {
-                            $latestResult->update(['status' => $data['status']]);
-                        }
-                    })
-                    ->modalHeading('Review Hasil Pekerjaan')
-                    ->modalSubmitActionLabel('Update'),
+                    ])->modalSubmitAction(false),
 
             ])
             ->toolbarActions([

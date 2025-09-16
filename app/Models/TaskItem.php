@@ -11,4 +11,9 @@ class TaskItem extends Model
     {
         return $this->belongsTo(Task::class);
     }
+
+    public function results()
+    {
+        return $this->hasMany(TaskResult::class, 'task_item_id');
+    }
 }

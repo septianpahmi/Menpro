@@ -29,6 +29,8 @@
         border: 1px solid #444;
         padding: 4px 6px;
         text-align: center;
+        height: 25px;
+        min-width: 25px;
     }
 
     table.timeline th {
@@ -54,7 +56,15 @@
         font-weight: bold;
     }
 </style>
-
+<h2 style="text-align: center; font-size: 18px; font-weight: bold;">
+    Schedule Pekerjaan Interior
+</h2>
+<div style="text-align: center; margin-top: 5px; font-size: 14px;">
+    <strong>CV. APRILIA PROJECT</strong>
+</div>
+<div style="display: flex; justify-content: space-between; margin-top: 15px; margin-bottom: 10px; font-size: 14px;">
+    <strong>Project : {{ $project->name }}</strong>
+</div>
 <table class="timeline">
     <thead>
         {{-- Baris Bulan --}}
@@ -109,26 +119,47 @@
 
                     @foreach ($weeks as $days)
                         @php
-                            $inRange =
-                                $item->start_date &&
-                                $item->end_date &&
-                                $days->first()->lte(\Carbon\Carbon::parse($item->end_date)) &&
-                                $days->last()->gte(\Carbon\Carbon::parse($item->start_date));
-                        @endphp
-                        @php
-                            $statusClass = '';
-                            if ($inRange) {
-                                if ($item->status === 'done') {
-                                    $statusClass = 'bg-green-500 text-white'; // selesai = hijau
-                                } elseif ($item->status === 'in_progress') {
-                                    $statusClass = 'bg-red-500 text-white'; // masih jalan = merah
-                                } else {
-                                    $statusClass = 'bg-yellow-300'; // planned = kuning
+                            $inRange = false;
+
+                            if ($item->task->start_date && $item->task->end_date) {
+                                foreach ($days as $day) {
+                                    if ($day->between($item->task->start_date, $item->task->end_date)) {
+                                        $inRange = true;
+                                        break;
+                                    }
                                 }
                             }
+                            $hasResult = $item->results
+                                ->filter(
+                                    fn($r) => $days->contains(
+                                        fn($d) => $d->isSameDay(\Carbon\Carbon::parse($r->created_at)),
+                                    ),
+                                )
+                                ->isNotEmpty();
+                            $statusClass = '';
+                            $symbol = '';
+
+                            if ($inRange) {
+                                if ($item->status === 'done') {
+                                    $statusClass = 'text-gray-800 font-bold';
+                                    $symbol = '✔'; // hijau selesai
+                                } elseif ($item->status === 'in_progress') {
+                                    $statusClass = 'text-red-600 font-bold';
+                                    $symbol = '✔'; // merah masih berjalan
+                                } else {
+                                    $statusClass = 'text-yellow-600 font-bold';
+                                    $symbol = '✔'; // kuning planned
+                                }
+                            }
+
+                            if ($hasResult) {
+                                $statusClass = 'text-gray-800 font-bold';
+                                $symbol = '✔'; // biru ada upload
+                            }
                         @endphp
+
                         <td class="{{ $statusClass }}">
-                            {{ $inRange ? '■' : '' }}
+                            {{ $symbol }}
                         </td>
                     @endforeach
                 </tr>
