@@ -28,4 +28,9 @@ class Task extends Model
             ->withPivot('role')
             ->withTimestamps();
     }
+
+    public function results()
+    {
+        return $this->hasMany(TaskResult::class);
+    }
 }

@@ -13,6 +13,8 @@ use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Section;
 use Filament\Forms\Components\DatePicker;
+use Filament\Schemas\Components\Wizard;
+use Filament\Schemas\Components\Wizard\Step;
 
 class TaskForm
 {
@@ -36,8 +38,8 @@ class TaskForm
     {
         return $schema
             ->schema([
-                Flex::make([
-                    Section::make('Task Detail')
+                Wizard::make([
+                    Step::make('Task Detail')
                         ->schema([
 
                             Select::make('project_id')
@@ -82,6 +84,7 @@ class TaskForm
                                     DatePicker::make('start_date')
                                         ->label('Start Date')
                                         ->reactive()
+                                        ->required()
                                         ->afterStateUpdated(
                                             fn($state, callable $set, callable $get) =>
                                             $set('duration', self::calculateDuration($state, $get('end_date')))
@@ -90,6 +93,7 @@ class TaskForm
                                     DatePicker::make('end_date')
                                         ->label('End Date')
                                         ->reactive()
+                                        ->required()
                                         ->afterStateUpdated(
                                             fn($state, callable $set, callable $get) =>
                                             $set('duration', self::calculateDuration($get('start_date'), $state))
@@ -98,18 +102,20 @@ class TaskForm
                                     TextInput::make('duration')
                                         ->label('Duration')
                                         ->suffix('Day')
-                                        ->readonly(),
+                                        ->readonly()
+                                        ->required(),
                                 ]),
                         ]),
-                    Section::make([
-                        Repeater::make('items')
-                            ->label('Task Item')
-                            ->relationship()
-                            ->schema([
-                                TextInput::make('name')->label('Item Name')->required(),
-                            ])
-                            ->createItemButtonLabel('Add Task Item'),
-                    ]),
+                    Step::make('Task Item')
+                        ->schema([
+                            Repeater::make('items')
+                                ->label('Task Item')
+                                ->relationship()
+                                ->schema([
+                                    TextInput::make('name')->label('Item Name')->required(),
+                                ])
+                                ->createItemButtonLabel('Add Task Item'),
+                        ]),
                 ])->columnSpanFull(),
             ]);
     }
