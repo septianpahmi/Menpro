@@ -24,23 +24,14 @@ class ProjectForm
                             ->required(),
                         Textarea::make('description')
                             ->label('Description'),
-                        Grid::make(3)
+                        Grid::make(2)
                             ->schema([
                                 DatePicker::make('start_date')
                                     ->label('Start Date')
                                     ->required(),
                                 DatePicker::make('end_date')
                                     ->label('End Date')
-                                    ->required(),
-                                Select::make('status')
-                                    ->label('Status')
-                                    ->options([
-                                        'planning' => 'Planning',
-                                        'ongoing' => 'Ongoing',
-                                        'done' => 'Done',
-                                        'hold' => 'Hold',
-                                    ])
-                                    ->default('planning'),
+                                    ->required()
                             ]),
                     ])
                     ->compact()

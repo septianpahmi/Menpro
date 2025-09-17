@@ -11,8 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('users', function (Blueprint $table) {
-            $table->enum('role', ['admin', 'surveyor', 'desainer', 'drafter', 'estimator', 'supervisor', 'furchasing', 'keuangan', 'konten kreator'])->default('admin');
+        Schema::table('task_items', function (Blueprint $table) {
+            $table->string('assigned_role')->nullable()->after('name');
         });
     }
 
@@ -21,7 +21,7 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('users', function (Blueprint $table) {
+        Schema::table('task_items', function (Blueprint $table) {
             //
         });
     }

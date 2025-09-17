@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\Tasks\Schemas;
 
 use Carbon\Carbon;
+use App\Models\TaskItem;
 use Filament\Schemas\Schema;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Toggle;
@@ -10,10 +11,10 @@ use Filament\Schemas\Components\Flex;
 use Filament\Schemas\Components\Grid;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Textarea;
+use Filament\Schemas\Components\Wizard;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Section;
 use Filament\Forms\Components\DatePicker;
-use Filament\Schemas\Components\Wizard;
 use Filament\Schemas\Components\Wizard\Step;
 
 class TaskForm
@@ -53,10 +54,15 @@ class TaskForm
                                     Select::make('role')
                                         ->label('Select Role')
                                         ->options([
+                                            'admin' => 'Admin',
+                                            'surveyor' => 'Surveyor',
                                             'desainer' => 'Desainer',
-                                            'purchasing' => 'Purchasing',
+                                            'drafter' => 'Drafter',
+                                            'estimator' => 'Estimator',
+                                            'supervisor' => 'Supervisor',
+                                            'furchasing' => 'Furchasing',
                                             'keuangan' => 'Keuangan',
-                                            'lapangan' => 'Lapangan',
+                                            'konten kreator' => 'Konten kreator',
                                         ])
                                         ->required(),
 
@@ -112,6 +118,11 @@ class TaskForm
                                 ->label('Task Item')
                                 ->relationship()
                                 ->schema([
+                                    Select::make('assigned_role')
+                                        ->label('Role')
+                                        ->options(TaskItem::$workflowOrder)
+                                        ->required(),
+
                                     TextInput::make('name')->label('Item Name')->required(),
                                 ])
                                 ->createItemButtonLabel('Add Task Item'),

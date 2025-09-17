@@ -49,15 +49,15 @@ class TasksTable
             ->recordActions([
                 ViewAction::make(),
                 // EditAction::make(),
-                Action::make('Timeline')
-                    ->label('Timeline')
-                    ->icon('heroicon-o-bars-3-bottom-left')
-                    ->slideOver()
-                    ->modalWidth(Width::FiveExtraLarge)
-                    ->form([
-                        View::make('tasks.timeline')
-                            ->viewData(fn($record) => ['record' => $record]),
-                    ])->modalSubmitAction(false),
+                // Action::make('Timeline')
+                //     ->label('Timeline')
+                //     ->icon('heroicon-o-bars-3-bottom-left')
+                //     ->slideOver()
+                //     ->modalWidth(Width::FiveExtraLarge)
+                //     ->form([
+                //         View::make('tasks.timeline')
+                //             ->viewData(fn($record) => ['record' => $record]),
+                //     ])->modalSubmitAction(false),
 
             ])
             ->toolbarActions([

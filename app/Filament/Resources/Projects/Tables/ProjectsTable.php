@@ -20,7 +20,8 @@ class ProjectsTable
                     ->label('Name')
                     ->searchable(),
                 TextColumn::make('status')
-                    ->label('Status'),
+                    ->label('Status')
+                    ->badge(),
                 TextColumn::make('start_date')
                     ->label('Start Date')
                     ->date('d-m-Y'),

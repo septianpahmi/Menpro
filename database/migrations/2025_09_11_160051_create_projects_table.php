@@ -17,7 +17,7 @@ return new class extends Migration
             $table->text('description')->nullable();
             $table->date('start_date')->nullable();
             $table->date('end_date')->nullable();
-            $table->enum('status', ['planning', 'ongoing', 'done', 'hold'])->default('planning');
+            $table->enum('status', ['in process', 'done', 'hold'])->default('in process');
             $table->timestamps();
         });
     }

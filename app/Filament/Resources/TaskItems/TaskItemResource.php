@@ -26,6 +26,7 @@ class TaskItemResource extends Resource
     protected static ?string $recordTitleAttribute = 'TaskItem';
     protected static ?int $navigationSort = 5;
     protected static string | UnitEnum | null $navigationGroup = 'Main Data';
+
     public static function form(Schema $schema): Schema
     {
         return TaskItemForm::configure($schema);

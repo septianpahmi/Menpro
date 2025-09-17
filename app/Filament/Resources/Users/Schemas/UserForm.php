@@ -34,12 +34,15 @@ class UserForm
                                 ->label('Postition')
                                 ->options([
                                     'admin' => 'Admin',
+                                    'surveyor' => 'Surveyor',
                                     'desainer' => 'Desainer',
-                                    'purchasing' => 'Purchasing',
+                                    'drafter' => 'Drafter',
+                                    'estimator' => 'Estimator',
+                                    'supervisor' => 'Supervisor',
+                                    'furchasing' => 'Furchasing',
                                     'keuangan' => 'Keuangan',
-                                    'lapangan' => 'Lapangan',
+                                    'konten kreator' => 'Konten kreator',
                                 ])
-                                ->default('lapangan')
                                 ->required(),
                         ]),
                 ])->columnSpanFull(),
