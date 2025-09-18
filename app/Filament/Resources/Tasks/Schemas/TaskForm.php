@@ -120,7 +120,18 @@ class TaskForm
                                 ->schema([
                                     Select::make('assigned_role')
                                         ->label('Role')
-                                        ->options(TaskItem::$workflowOrder)
+                                        // ->options(TaskItem::$workflowOrder)
+                                        ->options([
+                                            'admin' => 'Admin',
+                                            'surveyor' => 'Surveyor',
+                                            'desainer' => 'Desainer',
+                                            'drafter' => 'Drafter',
+                                            'estimator' => 'Estimator',
+                                            'supervisor' => 'Supervisor',
+                                            'furchasing' => 'Furchasing',
+                                            'keuangan' => 'Keuangan',
+                                            'konten kreator' => 'Konten kreator',
+                                        ])
                                         ->required(),
 
                                     TextInput::make('name')->label('Item Name')->required(),

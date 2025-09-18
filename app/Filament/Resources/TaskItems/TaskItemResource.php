@@ -16,6 +16,8 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\Auth;
 
 class TaskItemResource extends Resource
 {
@@ -26,6 +28,29 @@ class TaskItemResource extends Resource
     protected static ?string $recordTitleAttribute = 'TaskItem';
     protected static ?int $navigationSort = 5;
     protected static string | UnitEnum | null $navigationGroup = 'Main Data';
+
+
+    // public static function getEloquentQuery(): Builder
+    // {
+    //     $query = parent::getEloquentQuery();
+
+    //     $user = Auth::user();
+
+    //     if ($user?->role !== 'admin') {
+    //         // Filter hanya task item yg terkait user ini
+    //         return $query->whereHas('task.users', function ($q) use ($user) {
+    //             $q->where('users.id', $user->id);
+    //         });
+    //     }
+
+    //     return $query;
+    // }
+
+    public static function canDeleteAny(): bool
+    {
+        return Auth::user()?->role === 'admin';
+    }
+
 
     public static function form(Schema $schema): Schema
     {

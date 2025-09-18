@@ -2,13 +2,14 @@
 
 namespace App\Filament\Resources\Tasks;
 
-use BackedEnum;
 use UnitEnum;
+use BackedEnum;
 use App\Models\Task;
 use Filament\Tables\Table;
 use Filament\Schemas\Schema;
 use Filament\Resources\Resource;
 use Filament\Support\Icons\Heroicon;
+use Illuminate\Support\Facades\Auth;
 use Filament\Forms\Components\Select;
 use Illuminate\Database\Eloquent\Model;
 use App\Filament\Resources\Tasks\Pages\EditTask;
@@ -42,7 +43,10 @@ class TaskResource extends Resource
     protected static ?string $recordTitleAttribute = 'Task';
     protected static ?int $navigationSort = 4;
     protected static string | UnitEnum | null $navigationGroup = 'Main Data';
-
+    public static function canViewAny(): bool
+    {
+        return Auth::user()?->role === 'admin';
+    }
     public static function form(Schema $schema): Schema
     {
         return TaskForm::configure($schema);
