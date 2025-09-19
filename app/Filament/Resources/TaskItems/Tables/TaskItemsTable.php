@@ -76,6 +76,26 @@ class TaskItemsTable
                     ->multiple()
             ])
             ->recordActions([
+                Action::make('viewResult')
+                    ->label('View')
+                    ->icon('heroicon-o-eye')
+                    ->color('default')
+                    ->modalHeading('Detail Hasil Pekerjaan')
+                    ->visible(fn($record) => $record->status === 'done' && $record->results()->exists())
+                    ->modalContent(function ($record) {
+                        $lastResult = $record->results()->latest()->first();
+
+                        if (! $lastResult) {
+                            return 'Tidak ada hasil yang tersedia.';
+                        }
+
+                        return view('filament.components.view-task-result', [
+                            'result' => $lastResult,
+                        ]);
+                    })
+                    ->slideOver()
+                    ->modalSubmitAction(false),
+
                 Action::make('approveResult')
                     ->label('Approve')
                     ->color('success')

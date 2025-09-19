@@ -38,19 +38,23 @@ class TaskItem extends Model
         if ($this->assigned_role !== $role) {
             return false;
         }
-        if ($order[$role] === 1) {
+        if ($order[$role] === min($order)) {
             return true;
         }
 
-        $prevRoles = collect($order)
-            ->filter(fn($step) => $step < $order[$role])
-            ->keys();
+        $prevRoles = array_keys(array_filter($order, fn($step) => $step < $order[$role]));
 
-        $pendingExists = $this->task
-            ->items()
+
+        $pendingExists = TaskItem::query()
+            ->whereIn('task_id', function ($q) {
+                $q->select('id')
+                    ->from('tasks')
+                    ->where('project_id', $this->task->project_id);
+            })
             ->whereIn('assigned_role', $prevRoles)
             ->where('status', '!=', 'done')
             ->exists();
+
 
         return ! $pendingExists;
     }

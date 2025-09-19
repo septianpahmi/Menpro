@@ -30,21 +30,36 @@ class TaskItemResource extends Resource
     protected static string | UnitEnum | null $navigationGroup = 'Main Data';
 
 
-    // public static function getEloquentQuery(): Builder
-    // {
-    //     $query = parent::getEloquentQuery();
+    public static function getEloquentQuery(): Builder
+    {
+        $query = parent::getEloquentQuery();
 
-    //     $user = Auth::user();
+        $user = Auth::user();
 
-    //     if ($user?->role !== 'admin') {
-    //         // Filter hanya task item yg terkait user ini
-    //         return $query->whereHas('task.users', function ($q) use ($user) {
-    //             $q->where('users.id', $user->id);
-    //         });
-    //     }
+        if ($user?->role !== 'admin') {
+            // Filter hanya task item yg terkait user ini
+            return $query->whereHas('task.users', function ($q) use ($user) {
+                $q->where('users.id', $user->id);
+            });
+        }
 
-    //     return $query;
-    // }
+        return $query;
+    }
+    public static function getNavigationBadge(): ?string
+    {
+        $user = Auth::user();
+
+        $query = static::getModel()::query()
+            ->where('status', 'pending');
+
+        if ($user?->role !== 'admin') {
+            $query->whereHas('task.users', function ($q) use ($user) {
+                $q->where('users.id', $user->id);
+            });
+        }
+
+        return $query->count();
+    }
 
     public static function canDeleteAny(): bool
     {
