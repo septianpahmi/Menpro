@@ -15,12 +15,20 @@ class ProjectsTable
     {
         return $table
             ->columns([
+                TextColumn::make('client.name')
+                    ->sortable()
+                    ->label('Client')
+                    ->searchable(),
                 TextColumn::make('name')
                     ->sortable()
-                    ->label('Name')
+                    ->label('Project Name')
                     ->searchable(),
                 TextColumn::make('status')
                     ->label('Status')
+                    ->color(fn(string $state): string => match ($state) {
+                        'done'       => 'success',
+                        default      => 'primary',
+                    })
                     ->badge(),
                 TextColumn::make('start_date')
                     ->label('Start Date')

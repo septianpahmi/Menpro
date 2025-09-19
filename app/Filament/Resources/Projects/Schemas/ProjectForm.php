@@ -19,9 +19,16 @@ class ProjectForm
                 Section::make('Project Detail')
                     ->description('Enter the project detail')
                     ->schema([
-                        TextInput::make('name')
-                            ->label('Project Name')
-                            ->required(),
+                        Grid::make(2)
+                            ->schema([
+                                TextInput::make('name')
+                                    ->label('Project Name')
+                                    ->required(),
+                                Select::make('client_id')
+                                    ->relationship(name: 'client', titleAttribute: 'name')
+                                    ->native(false)
+                                    ->required(),
+                            ]),
                         Textarea::make('description')
                             ->label('Description'),
                         Grid::make(2)

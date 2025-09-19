@@ -9,7 +9,6 @@ class TaskResult extends Model
     protected $fillable = [
         'task_item_id',
         'uploaded_by',
-        'file_path',
         'notes',
         'status',
     ];
@@ -21,5 +20,9 @@ class TaskResult extends Model
     public function uploader()
     {
         return $this->belongsTo(User::class, 'uploaded_by');
+    }
+    public function files()
+    {
+        return $this->hasMany(ResultFile::class);
     }
 }

@@ -15,7 +15,6 @@ return new class extends Migration
             $table->id();
             $table->foreignId('task_item_id')->constrained()->onDelete('cascade');
             $table->foreignId('uploaded_by')->constrained('users')->onDelete('cascade');
-            $table->string('file_path')->nullable(); // file bukti
             $table->text('notes')->nullable();       // catatan staff
             $table->enum('status', ['submitted', 'approved', 'rejected'])->default('submitted');
             $table->timestamps();

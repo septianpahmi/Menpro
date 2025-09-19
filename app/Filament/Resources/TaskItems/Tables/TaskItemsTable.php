@@ -13,6 +13,7 @@ use Filament\Actions\DeleteBulkAction;
 use Filament\Forms\Components\Textarea;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Columns\ViewColumn;
 use Illuminate\Support\Facades\Storage;
 use Filament\Forms\Components\FileUpload;
 use Filament\Tables\Filters\SelectFilter;
@@ -56,15 +57,27 @@ class TaskItemsTable
                         default      => 'primary',
                     })
                     ->badge(),
-                TextColumn::make('results.file_path')
+                TextColumn::make('hasil')
                     ->label('Hasil Pekerjaan')
-                    ->color('info')
-                    ->badge()
-                    ->icon('heroicon-o-link')
-                    ->formatStateUsing(fn($state) => $state ? ' Preview' : '-') // tampilkan ikon/link
-                    ->url(fn($state) => $state ? Storage::url($state) : null, true) // klik buka file
-                    ->openUrlInNewTab()
-                    ->tooltip('Klik untuk membuka hasil'),
+                    ->getStateUsing(function ($record) {
+                        return $record->results
+                            ->flatMap->files
+                            ->map(function ($file) {
+                                $url = Storage::url($file->file_path);
+                                $name = basename($file->file_path);
+                                return "<a href='{$url}' target='_blank' class='text-blue-600 hover:underline'> 📂"
+                                    . \Illuminate\Support\Str::limit($name, 10) // batasi nama 20 karakter
+                                    . "</a>";
+                            })
+                            ->implode('<br>');
+                    })
+                    ->html()
+                    ->tooltip(function ($record) {
+                        return $record->results
+                            ->flatMap->files
+                            ->map(fn($file) => basename($file->file_path))
+                            ->implode("\n"); // tooltip tampil semua nama file
+                    }),
 
             ])
             ->filters([
@@ -99,7 +112,8 @@ class TaskItemsTable
                 Action::make('approveResult')
                     ->label('Approve')
                     ->color('success')
-                    ->icon('heroicon-o-check')
+                    ->icon('heroicon-o-check-circle')
+                    ->tooltip('Approve')
                     ->requiresConfirmation()
                     ->visible(fn($record) =>
                     Auth::user()?->role === 'admin'
@@ -119,21 +133,25 @@ class TaskItemsTable
                 Action::make('rejectResult')
                     ->label('Reject')
                     ->color('danger')
-                    ->icon('heroicon-o-x-mark')
+                    ->icon('heroicon-o-x-circle')
                     ->requiresConfirmation()
                     ->visible(fn($record) => Auth::user()?->role === 'admin'
                         && $record->results()->where('status', 'submitted')->exists())
                     ->action(function ($record) {
-                        $lastResult = $record->results()->latest()->first();
+                        $lastResult = $record->results()->latest()->with('files')->first();
 
                         if ($lastResult) {
-                            if ($lastResult->file_path && Storage::disk('public')->exists($lastResult->file_path)) {
-                                Storage::disk('public')->delete($lastResult->file_path);
+                            foreach ($lastResult->files as $file) {
+                                if (Storage::disk('public')->exists($file->file_path)) {
+                                    Storage::disk('public')->delete($file->file_path);
+                                }
+                                $file->delete();
                             }
 
                             $lastResult->delete();
                         }
-                        $record->update(['status' => 'pending']); // biar balik ke in progress
+
+                        $record->update(['status' => 'pending']);
                     }),
                 Action::make('uploadResult')
                     ->label('Upload Hasil')
@@ -144,19 +162,22 @@ class TaskItemsTable
                             ->directory('task-results')
                             ->disk('public')
                             ->visibility('public')
+                            ->multiple()
                             ->required(),
-
                         Textarea::make('notes')
                             ->label('Catatan')
                             ->nullable(),
                     ])
                     ->action(function (array $data, $record) {
-                        $record->results()->create([
-                            'file_path'   => $data['file_path'],
+                        $result = $record->results()->create([
                             'notes'       => $data['notes'] ?? null,
                             'uploaded_by' => Auth::id(),
                             'status'      => 'submitted',
                         ]);
+
+                        foreach ($data['file_path'] as $path) {
+                            $result->files()->create(['file_path' => $path]);
+                        }
                     })
                     ->modalHeading('Upload Hasil Pekerjaan')
                     ->modalSubmitActionLabel('Kirim')

@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class Project extends Model
 {
     protected $fillable = [
+        'client_id',
         'name',
         'description',
         'start_date',
@@ -19,13 +20,8 @@ class Project extends Model
         return $this->hasMany(Task::class);
     }
 
-    public function rab()
+    public function client()
     {
-        return $this->hasMany(Rab::class);
-    }
-
-    public function reports()
-    {
-        return $this->hasMany(Report::class);
+        return $this->belongsTo(Client::class, 'client_id');
     }
 }
