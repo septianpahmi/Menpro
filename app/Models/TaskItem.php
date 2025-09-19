@@ -11,7 +11,6 @@ class TaskItem extends Model
     protected $fillable = ['task_id', 'name', 'status', 'assigned_role'];
 
     public static array $workflowOrder = [
-        'admin' => 0,
         'surveyor' => 1,
         'desainer' => 2,
         'drafter' => 3,
@@ -20,13 +19,14 @@ class TaskItem extends Model
         'furchasing' => 6,
         'keuangan' => 7,
         'konten kreator' => 8,
+        'admin' => 9,
     ];
     public function canUpload(): bool
     {
         $user =  Filament::auth()->user();
 
         if (! $user) {
-            return false; // kalau belum login
+            return false;
         }
 
         $role = $user->role;
@@ -38,21 +38,25 @@ class TaskItem extends Model
         if ($this->assigned_role !== $role) {
             return false;
         }
-        if ($order[$role] === 0) {
+        if ($order[$role] === min($order)) {
             return true;
         }
 
-        $prevOrder = $order[$role] - 1;
-        $prevRole = array_search($prevOrder, $order, true);
+        $prevRoles = array_keys(array_filter($order, fn($step) => $step < $order[$role]));
 
-        if ($prevRole === false) {
-            return true;
-        }
-        return ! $this->task
-            ->items()
-            ->where('assigned_role', $prevRole)
+
+        $pendingExists = TaskItem::query()
+            ->whereIn('task_id', function ($q) {
+                $q->select('id')
+                    ->from('tasks')
+                    ->where('project_id', $this->task->project_id);
+            })
+            ->whereIn('assigned_role', $prevRoles)
             ->where('status', '!=', 'done')
             ->exists();
+
+
+        return ! $pendingExists;
     }
 
 

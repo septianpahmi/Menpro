@@ -2,12 +2,14 @@
 
 namespace App\Filament\Resources\Projects;
 
+use UnitEnum;
 use BackedEnum;
 use App\Models\Project;
 use Filament\Tables\Table;
 use Filament\Schemas\Schema;
 use Filament\Resources\Resource;
 use Filament\Support\Icons\Heroicon;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Database\Eloquent\Model;
 use App\Filament\Resources\Projects\Pages\EditProject;
 use App\Filament\Resources\Projects\Pages\ViewProject;
@@ -16,7 +18,6 @@ use App\Filament\Resources\Projects\Pages\CreateProject;
 use App\Filament\Resources\Projects\Schemas\ProjectForm;
 use App\Filament\Resources\Projects\Tables\ProjectsTable;
 use App\Filament\Resources\Projects\Schemas\ProjectInfolist;
-use UnitEnum;
 
 class ProjectResource extends Resource
 {
@@ -42,6 +43,10 @@ class ProjectResource extends Resource
     protected static ?string $recordTitleAttribute = 'Project';
     protected static ?int $navigationSort = 3;
     protected static string | UnitEnum | null $navigationGroup = 'Main Data';
+    public static function canViewAny(): bool
+    {
+        return Auth::user()?->role === 'admin';
+    }
 
     public static function form(Schema $schema): Schema
     {

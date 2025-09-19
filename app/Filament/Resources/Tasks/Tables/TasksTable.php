@@ -8,6 +8,7 @@ use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
 use Filament\Support\Enums\Width;
 use Filament\Tables\Filters\Filter;
+use Filament\Tables\Grouping\Group;
 use Illuminate\Support\Facades\Auth;
 use Filament\Actions\BulkActionGroup;
 use Filament\Forms\Components\Select;
@@ -25,7 +26,12 @@ class TasksTable
     public static function configure(Table $table): Table
     {
         return $table
-
+            ->groups([
+                Group::make('project.name')
+                    ->label('Project')
+                    ->collapsible(),
+            ])
+            ->defaultGroup('project.name')
             ->columns([
                 TextColumn::make('project.name')
                     ->sortable()

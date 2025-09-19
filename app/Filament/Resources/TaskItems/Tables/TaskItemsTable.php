@@ -76,18 +76,44 @@ class TaskItemsTable
                     ->multiple()
             ])
             ->recordActions([
+                Action::make('viewResult')
+                    ->label('View')
+                    ->icon('heroicon-o-eye')
+                    ->color('default')
+                    ->modalHeading('Detail Hasil Pekerjaan')
+                    ->visible(fn($record) => $record->status === 'done' && $record->results()->exists())
+                    ->modalContent(function ($record) {
+                        $lastResult = $record->results()->latest()->first();
+
+                        if (! $lastResult) {
+                            return 'Tidak ada hasil yang tersedia.';
+                        }
+
+                        return view('filament.components.view-task-result', [
+                            'result' => $lastResult,
+                        ]);
+                    })
+                    ->slideOver()
+                    ->modalSubmitAction(false),
+
                 Action::make('approveResult')
                     ->label('Approve')
                     ->color('success')
                     ->icon('heroicon-o-check')
                     ->requiresConfirmation()
-                    ->visible(fn($record) => $record->results()->where('status', 'submitted')->exists())
+                    ->visible(fn($record) =>
+                    Auth::user()?->role === 'admin'
+                        && $record->results()->where('status', 'submitted')->exists())
                     ->action(function ($record) {
                         $lastResult = $record->results()->latest()->first();
 
                         if ($lastResult) {
                             $lastResult->update(['status' => 'approved']);
-                            $record->update(['status' => 'done']); // update task item jadi done
+                            $record->update(['status' => 'done']);
+
+                            if ($record->assigned_role === 'admin') {
+                                $record->task->project->update(['status' => 'done']);
+                            }
                         }
                     }),
                 Action::make('rejectResult')
@@ -95,7 +121,8 @@ class TaskItemsTable
                     ->color('danger')
                     ->icon('heroicon-o-x-mark')
                     ->requiresConfirmation()
-                    ->visible(fn($record) => $record->results()->where('status', 'submitted')->exists())
+                    ->visible(fn($record) => Auth::user()?->role === 'admin'
+                        && $record->results()->where('status', 'submitted')->exists())
                     ->action(function ($record) {
                         $lastResult = $record->results()->latest()->first();
 
@@ -140,7 +167,8 @@ class TaskItemsTable
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
-                    DeleteBulkAction::make(),
+                    DeleteBulkAction::make()
+                        ->visible(fn() => Auth::user()?->role === 'admin'),
                 ]),
             ]);
     }
