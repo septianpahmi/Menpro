@@ -41,26 +41,16 @@ class TaskItemResource extends Resource
         }
 
         return match ($user?->role) {
-            // Surveyor => hanya task yang ditugaskan ke dirinya
             'surveyor' => $query->whereHas('task.users', function ($q) use ($user) {
                 $q->where('users.id', $user->id);
             }),
-
-            // Desainer => task miliknya + semua task user role surveyor
             'desainer' => $query->whereHas('task.users', function ($q) use ($user) {
                 $q->where('users.id', $user->id)
                     ->orWhere('users.role', 'surveyor');
             }),
-
-            // Drafter => task miliknya + semua task surveyor + semua task desainer
-            'drafter' => $query->whereHas('task.users', function ($q) use ($user) {
+            default => $query->whereHas('task.users', function ($q) use ($user) {
                 $q->where('users.id', $user->id)
                     ->orWhereIn('users.role', ['surveyor', 'desainer']);
-            }),
-
-            // Role lain => hanya task yang ditugaskan ke dirinya
-            default => $query->whereHas('task.users', function ($q) use ($user) {
-                $q->where('users.id', $user->id);
             }),
         };
     }
